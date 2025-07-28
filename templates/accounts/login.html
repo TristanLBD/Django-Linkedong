@@ -149,14 +149,7 @@
         text-decoration: underline;
     }
 
-    .error-message {
-        background: #fee2e2;
-        color: #991b1b;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
-    }
+
 </style>
 {% endblock %}
 
@@ -182,21 +175,31 @@
                 </div>
             {% endif %}
 
-            <form method="post">
+            <form method="post" class="needs-validation" novalidate>
                 {% csrf_token %}
 
-                <div class="form-floating">
-                    <input type="text" class="form-control" id="id_username" name="username" placeholder="Nom d'utilisateur" required>
-                    <label for="id_username">
+                <div class="form-floating mb-3">
+                    {{ form.username }}
+                    <label for="{{ form.username.id_for_label }}">
                         <i class="fas fa-user me-2"></i>Nom d'utilisateur
                     </label>
+                    {% if form.username.errors %}
+                        {% for error in form.username.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
-                <div class="form-floating">
-                    <input type="password" class="form-control" id="id_password" name="password" placeholder="Mot de passe" required>
-                    <label for="id_password">
+                <div class="form-floating mb-3">
+                    {{ form.password }}
+                    <label for="{{ form.password.id_for_label }}">
                         <i class="fas fa-lock me-2"></i>Mot de passe
                     </label>
+                    {% if form.password.errors %}
+                        {% for error in form.password.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    {% endif %}
                 </div>
 
                 <button type="submit" class="btn btn-login">
@@ -225,11 +228,13 @@
 
             <div class="signup-link">
                 <p class="mb-2">Nouveau sur Linkedong ?</p>
-                <a href="#">
+                <a href="{% url 'accounts:signup' %}">
                     <i class="fas fa-user-plus me-1"></i>Rejoignez-nous maintenant
                 </a>
             </div>
         </div>
     </div>
 </div>
+
+
 {% endblock %}

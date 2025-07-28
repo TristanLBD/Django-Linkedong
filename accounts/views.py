@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.contrib.auth.forms import AuthenticationForm
+from .forms import SignUpForm, LoginForm
 
 # Create your views here.
 
@@ -18,10 +18,10 @@ def login_view(request):
         return redirect('accounts:dashboard')
 
     if request.method != 'POST':
-        form = AuthenticationForm()
+        form = LoginForm()
         return render(request, 'accounts/login.html', {'form': form})
 
-    form = AuthenticationForm(request, data=request.POST)
+    form = LoginForm(request, data=request.POST)
     if not form.is_valid():
         messages.error(request, 'Veuillez corriger les erreurs ci-dessous.')
         return render(request, 'accounts/login.html', {'form': form})
@@ -35,7 +35,15 @@ def login_view(request):
         return render(request, 'accounts/login.html', {'form': form})
 
     login(request, user)
-    display_name = f"{user.first_name} {user.last_name}"
+
+    # Message de bienvenue amélioré
+    if user.first_name and user.last_name:
+        display_name = f"{user.first_name} {user.last_name}"
+    elif user.first_name:
+        display_name = user.first_name
+    else:
+        display_name = user.username
+
     messages.success(request, f'Bienvenue {display_name} !')
     return redirect('accounts:dashboard')
 
@@ -51,3 +59,22 @@ def logout_view(request):
 def dashboard(request):
     """Tableau de bord principal"""
     return render(request, 'posts/dashboard.html')
+
+
+def signup_view(request):
+    """Vue pour l'inscription d'un nouvel utilisateur"""
+    if request.user.is_authenticated:
+        return redirect('accounts:dashboard')
+
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            display_name = f"{user.first_name} {user.last_name}"
+            messages.success(request, f'Bienvenue {display_name} ! Votre compte a été créé avec succès.')
+            return redirect('accounts:dashboard')
+    else:
+        form = SignUpForm()
+
+    return render(request, 'accounts/signup.html', {'form': form})

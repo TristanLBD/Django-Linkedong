@@ -29,7 +29,6 @@ db.sqlite3-journal
 
 # Static et media files (si générés automatiquement)
 staticfiles/
-static/
 media/
 
 # Config de l'éditeur
