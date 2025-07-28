@@ -141,3 +141,6 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'error',
 }
+
+# Login URL pour @login_required
+LOGIN_URL = '/login/'

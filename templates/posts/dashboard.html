@@ -267,9 +267,17 @@
                 <div class="sidebar">
                     <!-- Carte profil -->
                     <div class="profile-card">
-                        <div class="profile-header"></div>
+                        <div class="profile-header">
+                            {% if user.profile.cover_picture %}
+                                <img src="{{ user.profile.cover_picture.url }}" alt="Photo de couverture" style="width: 100%; height: 100%; object-fit: cover;">
+                            {% endif %}
+                        </div>
                         <div class="profile-avatar">
-                            {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                                {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            {% endif %}
                         </div>
                         <div class="profile-info">
                             <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
@@ -323,7 +331,11 @@
                 <div class="create-post">
                     <div class="create-post-header">
                         <div class="post-avatar">
-                            {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            {% if user.profile.profile_picture %}
+                                <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                                {{ user.first_name.0 }}{{ user.last_name.0 }}
+                            {% endif %}
                         </div>
                         <div class="flex-grow-1">
                             <textarea class="create-post-input" placeholder="Partagez quelque chose avec votre réseau..." rows="3"></textarea>
