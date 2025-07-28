@@ -1,0 +1,235 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Se connecter - Linkedong{% endblock %}
+
+{% block extra_css %}
+<style>
+    .login-container {
+        min-height: 100vh;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+
+    .login-card {
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        overflow: hidden;
+        max-width: 400px;
+        width: 100%;
+    }
+
+    .login-header {
+        background: linear-gradient(135deg, var(--linkedin-blue) 0%, var(--linkedin-dark-blue) 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .login-body {
+        padding: 2rem;
+    }
+
+    .form-floating {
+        margin-bottom: 1rem;
+    }
+
+    .form-floating > .form-control {
+        border-radius: 0.5rem;
+        border: 2px solid #e5e7eb;
+        padding: 1rem 0.75rem;
+    }
+
+    .form-floating > .form-control:focus {
+        border-color: var(--linkedin-blue);
+        box-shadow: 0 0 0 0.2rem rgba(10, 102, 194, 0.25);
+    }
+
+    .form-floating > label {
+        padding: 1rem 0.75rem;
+    }
+
+    .btn-login {
+        width: 100%;
+        padding: 0.75rem;
+        font-weight: 600;
+        border-radius: 0.5rem;
+        background: var(--linkedin-blue);
+        border: none;
+        color: white;
+        transition: all 0.2s;
+    }
+
+    .btn-login:hover {
+        background: var(--linkedin-dark-blue);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .divider {
+        text-align: center;
+        margin: 1.5rem 0;
+        position: relative;
+    }
+
+    .divider::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: #e5e7eb;
+    }
+
+    .divider span {
+        background: white;
+        padding: 0 1rem;
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .social-login {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-social {
+        flex: 1;
+        padding: 0.75rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        background: white;
+        color: #374151;
+        font-weight: 500;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+    }
+
+    .btn-social:hover {
+        border-color: var(--linkedin-blue);
+        color: var(--linkedin-blue);
+        text-decoration: none;
+    }
+
+    .forgot-password {
+        text-align: center;
+        margin-top: 1rem;
+    }
+
+    .forgot-password a {
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-size: 0.875rem;
+    }
+
+    .forgot-password a:hover {
+        text-decoration: underline;
+    }
+
+    .signup-link {
+        text-align: center;
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .signup-link a {
+        color: var(--linkedin-blue);
+        text-decoration: none;
+        font-weight: 600;
+    }
+
+    .signup-link a:hover {
+        text-decoration: underline;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h2 class="mb-2">
+                <i class="fab fa-linkedin me-2"></i>Linkedong
+            </h2>
+            <p class="mb-0">Connectez-vous à votre compte</p>
+        </div>
+
+        <div class="login-body">
+            {% if form.errors %}
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            {{ error }}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-floating">
+                    <input type="text" class="form-control" id="id_username" name="username" placeholder="Nom d'utilisateur" required>
+                    <label for="id_username">
+                        <i class="fas fa-user me-2"></i>Nom d'utilisateur
+                    </label>
+                </div>
+
+                <div class="form-floating">
+                    <input type="password" class="form-control" id="id_password" name="password" placeholder="Mot de passe" required>
+                    <label for="id_password">
+                        <i class="fas fa-lock me-2"></i>Mot de passe
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-login">
+                    <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                </button>
+            </form>
+
+            <div class="forgot-password">
+                <a href="#">
+                    <i class="fas fa-question-circle me-1"></i>Mot de passe oublié ?
+                </a>
+            </div>
+
+            <div class="divider">
+                <span>ou</span>
+            </div>
+
+            <div class="social-login">
+                <a href="#" class="btn-social">
+                    <i class="fab fa-google me-2"></i>Google
+                </a>
+                <a href="#" class="btn-social">
+                    <i class="fab fa-facebook me-2"></i>Facebook
+                </a>
+            </div>
+
+            <div class="signup-link">
+                <p class="mb-2">Nouveau sur Linkedong ?</p>
+                <a href="#">
+                    <i class="fas fa-user-plus me-1"></i>Rejoignez-nous maintenant
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

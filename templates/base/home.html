@@ -1,0 +1,153 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Linkedong - Connectez-vous avec des professionnels{% endblock %}
+
+{% block content %}
+<!-- Section Hero -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="display-4 fw-bold mb-4">
+                    Connectez-vous avec des professionnels du monde entier
+                </h1>
+                <p class="lead mb-4">
+                    Rejoignez notre réseau professionnel pour développer votre carrière,
+                    partager vos expériences et découvrir de nouvelles opportunités.
+                </p>
+                <div class="d-flex flex-column flex-sm-row gap-3">
+                    <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg px-4 py-2 fw-semibold">
+                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                    </a>
+                    <a href="#" class="btn btn-outline-light btn-lg px-4 py-2 fw-semibold">
+                        <i class="fas fa-user-plus me-2"></i>S'inscrire gratuitement
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="position-relative">
+                    <div class="bg-white rounded-3 p-4 shadow-lg">
+                        <i class="fab fa-linkedin text-primary" style="font-size: 8rem;"></i>
+                    </div>
+                    <div class="position-absolute top-0 start-0 bg-primary rounded-circle" style="width: 50px; height: 50px; transform: translate(-25px, -25px);"></div>
+                    <div class="position-absolute top-0 end-0 bg-success rounded-circle" style="width: 30px; height: 30px; transform: translate(15px, -15px);"></div>
+                    <div class="position-absolute bottom-0 start-50 bg-warning rounded-circle" style="width: 40px; height: 40px; transform: translate(-20px, 20px);"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Fonctionnalités -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="row text-center mb-5">
+            <div class="col-lg-8 mx-auto">
+                <h2 class="display-5 fw-bold mb-3">Pourquoi choisir Linkedong ?</h2>
+                <p class="lead text-muted">
+                    Découvrez les fonctionnalités qui font de notre plateforme
+                    l'outil idéal pour votre développement professionnel.
+                </p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-users fa-2x text-primary"></i>
+                        </div>
+                        <h4 class="card-title fw-semibold">Réseau Professionnel</h4>
+                        <p class="card-text text-muted">
+                            Connectez-vous avec des collègues, partenaires et experts de votre secteur
+                            pour élargir votre réseau professionnel.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-briefcase fa-2x text-success"></i>
+                        </div>
+                        <h4 class="card-title fw-semibold">Opportunités d'Emploi</h4>
+                        <p class="card-text text-muted">
+                            Découvrez des offres d'emploi pertinentes et postulez directement
+                            auprès des entreprises qui vous intéressent.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-body text-center p-4">
+                        <div class="bg-warning bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-share-alt fa-2x text-warning"></i>
+                        </div>
+                        <h4 class="card-title fw-semibold">Partage de Contenu</h4>
+                        <p class="card-text text-muted">
+                            Partagez vos expériences, articles et insights professionnels
+                            pour établir votre expertise dans votre domaine.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section Statistiques -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <h3 class="display-4 fw-bold text-primary mb-2">500+</h3>
+                    <p class="text-muted fw-semibold">Utilisateurs actifs</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <h3 class="display-4 fw-bold text-success mb-2">1000+</h3>
+                    <p class="text-muted fw-semibold">Connexions créées</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <h3 class="display-4 fw-bold text-warning mb-2">200+</h3>
+                    <p class="text-muted fw-semibold">Publications partagées</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="p-4">
+                    <h3 class="display-4 fw-bold text-info mb-2">50+</h3>
+                    <p class="text-muted fw-semibold">Entreprises partenaires</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section CTA -->
+<section class="py-5 bg-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Prêt à rejoindre notre réseau ?</h2>
+        <p class="lead mb-4">
+            Commencez dès aujourd'hui à construire votre réseau professionnel
+            et à développer votre carrière.
+        </p>
+        <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <a href="{% url 'accounts:login' %}" class="btn btn-light btn-lg px-4 py-2 fw-semibold">
+                <i class="fas fa-sign-in-alt me-2"></i>Se connecter maintenant
+            </a>
+            <a href="#" class="btn btn-outline-light btn-lg px-4 py-2 fw-semibold">
+                <i class="fas fa-info-circle me-2"></i>En savoir plus
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

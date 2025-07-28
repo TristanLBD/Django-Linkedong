@@ -1,0 +1,451 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Tableau de bord - Linkedong{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-container {
+        background-color: #f3f2ef;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+
+    .sidebar {
+        position: sticky;
+        top: 2rem;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 0.75rem;
+        border: 1px solid #e0e0e0;
+        overflow: hidden;
+        margin-bottom: 1rem;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, var(--linkedin-blue) 0%, var(--linkedin-dark-blue) 100%);
+        height: 60px;
+        position: relative;
+    }
+
+    .profile-avatar {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: white;
+        border: 3px solid white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: var(--linkedin-blue);
+        font-weight: 600;
+    }
+
+    .profile-info {
+        padding: 2rem 1rem 1rem;
+        text-align: center;
+    }
+
+    .profile-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-title {
+        color: var(--linkedin-gray);
+        font-size: 0.875rem;
+        margin-bottom: 1rem;
+    }
+
+    .profile-stats {
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem;
+        display: flex;
+        justify-content: space-between;
+        text-align: center;
+    }
+
+    .stat-item {
+        flex: 1;
+    }
+
+    .stat-number {
+        font-weight: 600;
+        color: var(--linkedin-blue);
+        display: block;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: var(--linkedin-gray);
+    }
+
+    .post-card {
+        background: white;
+        border-radius: 0.75rem;
+        border: 1px solid #e0e0e0;
+        margin-bottom: 1rem;
+    }
+
+    .post-header {
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .post-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--linkedin-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+    }
+
+    .post-author {
+        flex: 1;
+    }
+
+    .post-author-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .post-time {
+        font-size: 0.875rem;
+        color: var(--linkedin-gray);
+    }
+
+    .post-content {
+        padding: 0 1rem 1rem;
+    }
+
+    .post-text {
+        margin-bottom: 1rem;
+        line-height: 1.6;
+    }
+
+    .post-actions {
+        padding: 0.75rem 1rem;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        gap: 1rem;
+    }
+
+    .post-action {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        color: var(--linkedin-gray);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .post-action:hover {
+        background-color: var(--linkedin-light-gray);
+        color: var(--linkedin-blue);
+        text-decoration: none;
+    }
+
+    .create-post {
+        background: white;
+        border-radius: 0.75rem;
+        border: 1px solid #e0e0e0;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .create-post-header {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .create-post-input {
+        border: none;
+        outline: none;
+        width: 100%;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+        background-color: var(--linkedin-light-gray);
+        resize: none;
+    }
+
+    .create-post-input:focus {
+        background-color: white;
+        box-shadow: 0 0 0 2px var(--linkedin-blue);
+    }
+
+    .create-post-actions {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: space-between;
+    }
+
+    .post-attachments {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .attachment-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: none;
+        color: var(--linkedin-gray);
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .attachment-btn:hover {
+        background-color: var(--linkedin-light-gray);
+        color: var(--linkedin-blue);
+    }
+
+    .trending-topics {
+        background: white;
+        border-radius: 0.75rem;
+        border: 1px solid #e0e0e0;
+        padding: 1rem;
+    }
+
+    .trending-topic {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .trending-topic:last-child {
+        border-bottom: none;
+    }
+
+    .trending-number {
+        font-weight: 600;
+        color: var(--linkedin-gray);
+        min-width: 20px;
+    }
+
+    .trending-text {
+        flex: 1;
+    }
+
+    .trending-title {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .trending-meta {
+        font-size: 0.875rem;
+        color: var(--linkedin-gray);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="container">
+        <div class="row">
+            <!-- Sidebar gauche -->
+            <div class="col-lg-3">
+                <div class="sidebar">
+                    <!-- Carte profil -->
+                    <div class="profile-card">
+                        <div class="profile-header"></div>
+                        <div class="profile-avatar">
+                            {{ user.first_name.0 }}{{ user.last_name.0 }}
+                        </div>
+                        <div class="profile-info">
+                            <div class="profile-name">{{ user.first_name }} {{ user.last_name }}</div>
+                            <div class="profile-title">Développeur Full Stack</div>
+                            <div class="profile-stats">
+                                <div class="stat-item">
+                                    <span class="stat-number">150</span>
+                                    <span class="stat-label">Connexions</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-number">25</span>
+                                    <span class="stat-label">Posts</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sujets tendance -->
+                    <div class="trending-topics">
+                        <h6 class="mb-3 fw-semibold">
+                            <i class="fas fa-fire me-2 text-warning"></i>Sujets tendance
+                        </h6>
+                        <div class="trending-topic">
+                            <div class="trending-number">#1</div>
+                            <div class="trending-text">
+                                <div class="trending-title">Développement Web</div>
+                                <div class="trending-meta">1,234 posts</div>
+                            </div>
+                        </div>
+                        <div class="trending-topic">
+                            <div class="trending-number">#2</div>
+                            <div class="trending-text">
+                                <div class="trending-title">Intelligence Artificielle</div>
+                                <div class="trending-meta">987 posts</div>
+                            </div>
+                        </div>
+                        <div class="trending-topic">
+                            <div class="trending-number">#3</div>
+                            <div class="trending-text">
+                                <div class="trending-title">DevOps</div>
+                                <div class="trending-meta">756 posts</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contenu principal -->
+            <div class="col-lg-6">
+                <!-- Créer un post -->
+                <div class="create-post">
+                    <div class="create-post-header">
+                        <div class="post-avatar">
+                            {{ user.first_name.0 }}{{ user.last_name.0 }}
+                        </div>
+                        <div class="flex-grow-1">
+                            <textarea class="create-post-input" placeholder="Partagez quelque chose avec votre réseau..." rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="create-post-actions">
+                        <div class="post-attachments">
+                            <button class="attachment-btn">
+                                <i class="fas fa-image me-2"></i>Photo
+                            </button>
+                            <button class="attachment-btn">
+                                <i class="fas fa-video me-2"></i>Vidéo
+                            </button>
+                            <button class="attachment-btn">
+                                <i class="fas fa-file me-2"></i>Document
+                            </button>
+                        </div>
+                        <button class="btn btn-linkedin">
+                            <i class="fas fa-paper-plane me-2"></i>Publier
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Posts -->
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">JM</div>
+                        <div class="post-author">
+                            <div class="post-author-name">Jean Martin</div>
+                            <div class="post-time">Il y a 2 heures • <i class="fas fa-globe"></i></div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-text">
+                            J'ai terminé un nouveau projet Django aujourd'hui ! C'était vraiment enrichissant de travailler avec ce framework.
+                            Les bonnes pratiques et l'architecture MVC rendent le développement tellement plus organisé.
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <a href="#" class="post-action">
+                            <i class="far fa-thumbs-up"></i>J'aime
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="far fa-comment"></i>Commenter
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="fas fa-share"></i>Partager
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="far fa-paper-plane"></i>Envoyer
+                        </a>
+                    </div>
+                </div>
+
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-avatar">SP</div>
+                        <div class="post-author">
+                            <div class="post-author-name">Sophie Pierre</div>
+                            <div class="post-time">Il y a 5 heures • <i class="fas fa-globe"></i></div>
+                        </div>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-text">
+                            Partage d'une découverte intéressante sur les nouvelles technologies web.
+                            Les frameworks modernes comme React et Vue.js révolutionnent vraiment la façon
+                            dont nous construisons les interfaces utilisateur.
+                        </div>
+                    </div>
+                    <div class="post-actions">
+                        <a href="#" class="post-action">
+                            <i class="far fa-thumbs-up"></i>J'aime
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="far fa-comment"></i>Commenter
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="fas fa-share"></i>Partager
+                        </a>
+                        <a href="#" class="post-action">
+                            <i class="far fa-paper-plane"></i>Envoyer
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar droite -->
+            <div class="col-lg-3">
+                <div class="sidebar">
+                    <!-- Suggestions de connexions -->
+                    <div class="trending-topics">
+                        <h6 class="mb-3 fw-semibold">
+                            <i class="fas fa-users me-2 text-primary"></i>Suggestions pour vous
+                        </h6>
+                        <div class="trending-topic">
+                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">TD</div>
+                            <div class="trending-text">
+                                <div class="trending-title">Thomas Dubois</div>
+                                <div class="trending-meta">Développeur Backend</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-linkedin">+</button>
+                        </div>
+                        <div class="trending-topic">
+                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">ER</div>
+                            <div class="trending-text">
+                                <div class="trending-title">Emma Robert</div>
+                                <div class="trending-meta">UX Designer</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-linkedin">+</button>
+                        </div>
+                        <div class="trending-topic">
+                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">LP</div>
+                            <div class="trending-text">
+                                <div class="trending-title">Lucas Petit</div>
+                                <div class="trending-meta">DevOps Engineer</div>
+                            </div>
+                            <button class="btn btn-sm btn-outline-linkedin">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
