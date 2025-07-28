@@ -1,0 +1,14 @@
+Projet Django - LinkedIn
+    Fonctionnalités à développer:
+    - Inscription, connexion (par e-mail) et suppression de compte
+    - Gestion de compte utilisateur avec liste des compétences et parcours entreprise : afficher les statistiques de l’utilisateur sur sa page (nombre de commentaires, de posts likés, .. etc)
+    - Pouvoir uploader des photos sur le fil ou en photo de profile
+    - Système d’ajout/suppression des connexions
+    - Fil d’actualité (du plus récent au plus ancien) des communautés que l’on suit
+    - Fil d’actualité d’un utilisateur uniquement lorsque je me rends sur sa page
+    - Système de réaction sur les posts (like, love, funny, …)
+    - Système de commentaires sur les posts
+    - Système de posts
+    - Système de notification à chaque évènement : like, commentaire, connexion avec un user, partage d’un de nos post et visite de notre profil
+    - Système de trophé : après avoir reçu X up vote, l’utilisateur auteur du post reçois un trophé (libre à vous de créer plusieurs trophés)
+    - Barre de recherche : pouvoir retrouver des amis par leur nom, prénom ou ville

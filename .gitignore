@@ -1,0 +1,72 @@
+# Environnements virtuels
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+env.bak/
+venv.bak/
+
+# Fichiers Markdown
+*.md
+!README.md
+
+todo.txt
+commandes.txt
+LoopingImage.jpg
+
+# Fichiers Python compilés
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django
+*.log
+*.pot
+*.pyc
+db.sqlite3
+db.sqlite3-journal
+
+# Static et media files (si générés automatiquement)
+staticfiles/
+static/
+media/
+
+# Config de l'éditeur
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Fichiers de test
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+.pytest_cache/
+.coverage
+.cache
+
+# Pipenv / Poetry
+Pipfile.lock
+poetry.lock
+
+# fichiers d'environnements
+.env
+.env.*
+
+# Migrations (optionnel, utile si tu veux les recréer depuis zéro)
+# Attention : à ne faire que si tu gères les migrations autrement
+# */migrations/
+# !*/migrations/__init__.py
+
+# fichiers mypy / lint
+.mypy_cache/
+.pytype/
+pylint-report.txt
+pylint-output.txt
+flake8.log
