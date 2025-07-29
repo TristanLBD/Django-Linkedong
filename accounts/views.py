@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import SignUpForm, LoginForm
+from .forms import SignUpForm, LoginForm, ProfileUpdateForm
 
 # Create your views here.
 
@@ -78,3 +78,44 @@ def signup_view(request):
         form = SignUpForm()
 
     return render(request, 'accounts/signup.html', {'form': form})
+
+
+@login_required
+def profile_settings(request):
+    """Vue pour les paramètres du profil"""
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            profile = form.save(commit=False)
+
+            # Gérer la suppression des photos
+            if request.POST.get('clear_profile_picture'):
+                if profile.profile_picture:
+                    profile.profile_picture.delete(save=False)
+                profile.profile_picture = None
+
+            if request.POST.get('clear_cover_picture'):
+                if profile.cover_picture:
+                    profile.cover_picture.delete(save=False)
+                profile.cover_picture = None
+
+            profile.save()
+            messages.success(request, 'Votre profil a été mis à jour avec succès.')
+            return redirect('accounts:profile_settings')
+    else:
+        form = ProfileUpdateForm(instance=request.user.profile)
+
+    return render(request, 'accounts/profile_settings.html', {'form': form})
+
+
+@login_required
+def delete_account(request):
+    """Vue pour supprimer le compte utilisateur"""
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, 'Votre compte a été supprimé avec succès.')
+        return redirect('accounts:home')
+
+    return redirect('accounts:profile_settings')
