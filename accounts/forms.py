@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Skill, UserSkill, Experience
 
 
 class SignUpForm(UserCreationForm):
@@ -121,3 +121,107 @@ class LoginForm(AuthenticationForm):
             'placeholder': 'Mot de passe'
         })
     )
+
+
+class SkillForm(forms.ModelForm):
+    """Formulaire pour ajouter une nouvelle compétence"""
+    class Meta:
+        model = Skill
+        fields = ['name']
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ex: Python, JavaScript, Gestion de projet...'
+            })
+        }
+
+class UserSkillForm(forms.ModelForm):
+    """Formulaire pour ajouter une compétence à un utilisateur"""
+    skill = forms.ModelChoiceField(
+        queryset=Skill.objects.all().order_by('name'),
+        empty_label="Sélectionnez une compétence",
+        widget=forms.Select(attrs={
+            'class': 'form-select',
+            'placeholder': 'Sélectionnez une compétence'
+        })
+    )
+
+    class Meta:
+        model = UserSkill
+        fields = ['skill', 'level']
+        widgets = {
+            'level': forms.Select(attrs={'class': 'form-select'})
+        }
+
+    def clean_skill(self):
+        skill = self.cleaned_data.get('skill')
+        if not skill:
+            raise forms.ValidationError('Veuillez sélectionner une compétence.')
+        return skill
+
+    def save(self, user, commit=True):
+        user_skill = super().save(commit=False)
+        user_skill.user = user
+
+        if commit:
+            user_skill.save()
+        return user_skill
+
+class ExperienceForm(forms.ModelForm):
+    """Formulaire pour ajouter/modifier une expérience professionnelle"""
+    class Meta:
+        model = Experience
+        fields = ['company', 'position', 'description', 'start_date', 'end_date', 'is_current']
+        widgets = {
+            'company': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Nom de l\'entreprise'
+            }),
+            'position': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Titre du poste'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Décrivez vos responsabilités et réalisations...'
+            }),
+            'start_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'end_date': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date'
+            }),
+            'is_current': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Formater les dates pour l'affichage dans les champs HTML5
+        if self.instance and self.instance.pk:
+            if self.instance.start_date:
+                # Format YYYY-MM-DD pour les champs HTML5 date
+                self.initial['start_date'] = self.instance.start_date.strftime('%Y-%m-%d')
+            if self.instance.end_date:
+                self.initial['end_date'] = self.instance.end_date.strftime('%Y-%m-%d')
+
+    def clean(self):
+        cleaned_data = super().clean()
+        is_current = cleaned_data.get('is_current')
+        end_date = cleaned_data.get('end_date')
+
+        if is_current and end_date:
+            raise forms.ValidationError(
+                'Si c\'est votre poste actuel, laissez la date de fin vide.'
+            )
+
+        if not is_current and not end_date:
+            raise forms.ValidationError(
+                'Veuillez spécifier une date de fin ou cocher "Poste actuel".'
+            )
+
+        return cleaned_data

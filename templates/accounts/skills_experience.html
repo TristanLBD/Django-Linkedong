@@ -1,0 +1,270 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Compétences et Expérience - Linkedong{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- En-tête de la page -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-user-tie text-primary me-3 fs-4"></i>
+                        <h3 class="card-title mb-0 text-primary">Gestion des Compétences et Expérience</h3>
+                    </div>
+                    <p class="text-muted mb-0">
+                        Gérez vos compétences professionnelles et votre parcours entreprise pour enrichir votre profil.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Section Compétences -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fas fa-tools text-primary me-3 fs-4"></i>
+                        <h4 class="card-title mb-0 text-primary">Mes Compétences</h4>
+                    </div>
+
+                    <!-- Formulaire d'ajout de compétence -->
+                    <div class="bg-light p-3 rounded mb-3">
+                        <h5 class="text-primary mb-3">Ajouter une compétence</h5>
+                        <form method="post" action="{% url 'accounts:add_skill' %}">
+                            {% csrf_token %}
+                            <div class="row g-3 align-items-end">
+                                <div class="col-md-5">
+                                    {{ skill_form.skill }}
+                                    {% if skill_form.skill.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in skill_form.skill.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-4">
+                                    {{ skill_form.level }}
+                                </div>
+                                <div class="col-md-3">
+                                    <button type="submit" class="btn btn-primary w-100">
+                                        <i class="fas fa-plus me-1"></i>Ajouter
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Liste des compétences -->
+                    {% if user_skills %}
+                        <div class="mt-3">
+                            {% for user_skill in user_skills %}
+                                <div class="d-flex justify-content-between align-items-center p-3 bg-light rounded mb-2">
+                                    <div>
+                                        <div class="fw-bold">{{ user_skill.skill.name }}</div>
+                                        <span class="badge bg-secondary">{{ user_skill.get_level_display }}</span>
+                                    </div>
+                                    <form method="post" action="{% url 'accounts:delete_skill' user_skill.id %}" class="d-inline">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette compétence ?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-tools text-muted fs-1 mb-3"></i>
+                            <p class="text-muted">Aucune compétence ajoutée pour le moment.</p>
+                            <p class="text-muted small">Ajoutez vos premières compétences pour enrichir votre profil.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Section Expérience -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fas fa-briefcase text-primary me-3 fs-4"></i>
+                        <h4 class="card-title mb-0 text-primary">Mon Parcours Professionnel</h4>
+                    </div>
+
+                    <!-- Formulaire d'ajout d'expérience -->
+                    <div class="bg-light p-3 rounded mb-3">
+                        <h5 class="text-primary mb-3">Ajouter une expérience</h5>
+                        <form method="post" action="{% url 'accounts:add_experience' %}" id="experience-form">
+                            {% csrf_token %}
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="{{ experience_form.company.id_for_label }}" class="form-label">Entreprise *</label>
+                                    {{ experience_form.company }}
+                                    {% if experience_form.company.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in experience_form.company.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ experience_form.position.id_for_label }}" class="form-label">Poste *</label>
+                                    {{ experience_form.position }}
+                                    {% if experience_form.position.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in experience_form.position.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="row g-3 mt-2">
+                                <div class="col-md-6">
+                                    <label for="{{ experience_form.start_date.id_for_label }}" class="form-label">Date de début *</label>
+                                    {{ experience_form.start_date }}
+                                    {% if experience_form.start_date.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in experience_form.start_date.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ experience_form.end_date.id_for_label }}" class="form-label">Date de fin</label>
+                                    {{ experience_form.end_date }}
+                                    {% if experience_form.end_date.errors %}
+                                        <div class="text-danger mt-1">
+                                            {% for error in experience_form.end_date.errors %}
+                                                <small>{{ error }}</small>
+                                            {% endfor %}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <div class="form-check">
+                                    {{ experience_form.is_current }}
+                                    <label class="form-check-label" for="{{ experience_form.is_current.id_for_label }}">
+                                        Poste actuel
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <label for="{{ experience_form.description.id_for_label }}" class="form-label">Description</label>
+                                {{ experience_form.description }}
+                                {% if experience_form.description.errors %}
+                                    <div class="text-danger mt-1">
+                                        {% for error in experience_form.description.errors %}
+                                            <small>{{ error }}</small>
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="mt-3">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-plus me-1"></i>Ajouter l'expérience
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Liste des expériences -->
+                    {% if experiences %}
+                        <div class="mt-3">
+                            {% for experience in experiences %}
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h6 class="card-title mb-1">{{ experience.position }}</h6>
+                                                <p class="text-primary mb-0">{{ experience.company }}</p>
+                                            </div>
+                                            <div class="text-end">
+                                                <small class="text-muted">
+                                                    {{ experience.start_date|date:"M Y" }} -
+                                                    {% if experience.is_current %}
+                                                        <span class="badge bg-primary">Actuel</span>
+                                                    {% else %}
+                                                        {{ experience.end_date|date:"M Y" }}
+                                                    {% endif %}
+                                                </small>
+                                            </div>
+                                        </div>
+                                        {% if experience.description %}
+                                            <p class="card-text text-muted">{{ experience.description }}</p>
+                                        {% endif %}
+                                        <div class="d-flex gap-2 mt-2">
+                                            <a href="{% url 'accounts:edit_experience' experience.id %}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-edit me-1"></i>Modifier
+                                            </a>
+                                            <form method="post" action="{% url 'accounts:delete_experience' experience.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette expérience ?')">
+                                                    <i class="fas fa-trash me-1"></i>Supprimer
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-4">
+                            <i class="fas fa-briefcase text-muted fs-1 mb-3"></i>
+                            <p class="text-muted">Aucune expérience professionnelle ajoutée pour le moment.</p>
+                            <p class="text-muted small">Ajoutez votre première expérience pour enrichir votre profil.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const isCurrentCheckbox = document.getElementById('{{ experience_form.is_current.id_for_label }}');
+    const endDateField = document.getElementById('{{ experience_form.end_date.id_for_label }}');
+
+    if (isCurrentCheckbox && endDateField) {
+        // Fonction pour gérer l'interaction entre "Poste actuel" et "Date de fin"
+        function handleCurrentJobChange() {
+            if (isCurrentCheckbox.checked) {
+                endDateField.value = '';
+                endDateField.disabled = true;
+                endDateField.classList.add('opacity-50');
+            } else {
+                endDateField.disabled = false;
+                endDateField.classList.remove('opacity-50');
+            }
+        }
+
+        // Appliquer au chargement de la page
+        handleCurrentJobChange();
+
+        // Écouter les changements de la case à cocher
+        isCurrentCheckbox.addEventListener('change', handleCurrentJobChange);
+
+        // Validation côté client pour la date de fin
+        const startDateField = document.getElementById('{{ experience_form.start_date.id_for_label }}');
+        endDateField.addEventListener('change', function() {
+            if (startDateField.value && endDateField.value) {
+                const startDate = new Date(startDateField.value);
+                const endDate = new Date(endDateField.value);
+
+                if (endDate < startDate) {
+                    alert('La date de fin ne peut pas être antérieure à la date de début.');
+                    endDateField.value = '';
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
