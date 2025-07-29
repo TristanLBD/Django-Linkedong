@@ -141,7 +141,7 @@
     <!-- Header/Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light bg-white border-bottom">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'accounts:home' %}">
+            <a class="navbar-brand" href="{% url 'posts:home' %}">
                 <i class="fab fa-linkedin me-2"></i>Linkedong
             </a>
 
@@ -153,7 +153,7 @@
                 <ul class="navbar-nav me-auto">
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:dashboard' %}">
+                            <a class="nav-link" href="{% url 'posts:dashboard' %}">
                                 <i class="fas fa-home me-1"></i>Accueil
                             </a>
                         </li>
@@ -187,7 +187,7 @@
                                 <i class="fas fa-user-circle me-1"></i>{{ user.first_name }}
                             </a>
                             <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Mon Profil</a></li>
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile_settings' %}"><i class="fas fa-user me-2"></i>Mon Profil</a></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:skills_experience' %}"><i class="fas fa-tools me-2"></i>Compétences & Expérience</a></li>
                                 <li><a class="dropdown-item" href="{% url 'accounts:profile_settings' %}"><i class="fas fa-cog me-2"></i>Paramètres</a></li>
                                 <li><hr class="dropdown-divider"></li>

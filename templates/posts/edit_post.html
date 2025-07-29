@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Modifier le post - Linkedong{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-4">
+                        <i class="fas fa-edit text-primary me-3 fs-4"></i>
+                        <h3 class="card-title mb-0 text-primary">Modifier le post</h3>
+                    </div>
+
+                    <form method="post" enctype="multipart/form-data" data-has-image="{% if post.image and post.image.url %}true{% else %}false{% endif %}">
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">Contenu</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.content.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label">Image (optionnel)</label>
+                            {{ form.image }}
+
+                            <!-- Image actuelle -->
+                            {% if post.image and post.image.url %}
+                                <div class="mt-3 p-3 bg-light rounded">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-image me-2 text-primary"></i>Image actuelle
+                                    </h6>
+                                    <div class="d-flex align-items-center">
+                                        <img src="{{ post.image.url }}" alt="Image actuelle"
+                                             class="img-thumbnail me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold">Image actuelle du post</div>
+                                            <div class="text-muted small">Cette image sera remplacée si vous en sélectionnez une nouvelle</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <div class="mt-3 p-3 bg-light rounded">
+                                    <h6 class="mb-2">
+                                        <i class="fas fa-image me-2 text-muted"></i>Aucune image actuelle
+                                    </h6>
+                                    <div class="text-muted small">Ce post n'a pas d'image. Vous pouvez en ajouter une en sélectionnant un fichier ci-dessus.</div>
+                                </div>
+                            {% endif %}
+
+                            <!-- Zone de prévisualisation de la nouvelle image -->
+                            <div id="new-image-preview-container" style="display: none;" class="mt-3">
+                                <h6 class="mb-2">
+                                    <i class="fas fa-eye me-2 text-success"></i>Nouvelle image
+                                </h6>
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                                    <div class="d-flex align-items-center">
+                                        <img id="new-image-preview" src="" alt="Prévisualisation"
+                                             style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                                        <div>
+                                            <div id="new-image-name" class="fw-semibold"></div>
+                                            <div id="new-image-size" class="text-muted small"></div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeNewImage()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {% if form.image.errors %}
+                                <div class="text-danger mt-1">
+                                    {% for error in form.image.errors %}
+                                        <small>{{ error }}</small>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <a href="{% url 'posts:dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i>Retour
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Prévisualisation de la nouvelle image
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validation du type de fichier
+        if (!file.type.startsWith('image/')) {
+            alert('Veuillez sélectionner un fichier image valide.');
+            this.value = '';
+            return;
+        }
+
+        // Validation de la taille (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            alert('L\'image est trop volumineuse. Taille maximum : 5MB');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('new-image-preview').src = e.target.result;
+            document.getElementById('new-image-preview-container').style.display = 'block';
+            document.getElementById('new-image-name').textContent = file.name;
+            document.getElementById('new-image-size').textContent = formatFileSize(file.size);
+        };
+        reader.onerror = function() {
+            alert('Erreur lors de la lecture du fichier.');
+            document.getElementById('{{ form.image.id_for_label }}').value = '';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        document.getElementById('new-image-preview-container').style.display = 'none';
+    }
+});
+
+// Fonction pour formater la taille du fichier
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Supprimer la nouvelle image sélectionnée
+function removeNewImage() {
+    document.getElementById('{{ form.image.id_for_label }}').value = ''; // Effacer le champ de fichier
+    document.getElementById('new-image-preview').src = ''; // Effacer l'image de prévisualisation
+    document.getElementById('new-image-preview-container').style.display = 'none'; // Masquer le conteneur
+    document.getElementById('new-image-name').textContent = ''; // Effacer le nom de fichier
+    document.getElementById('new-image-size').textContent = ''; // Effacer la taille
+}
+
+// Confirmation avant soumission si une nouvelle image est sélectionnée
+document.querySelector('form').addEventListener('submit', function(e) {
+    const newImageFile = document.getElementById('{{ form.image.id_for_label }}').files[0];
+    const hasCurrentImage = document.querySelector('form').dataset.hasImage === 'true';
+
+    if (newImageFile && hasCurrentImage) {
+        if (!confirm('Êtes-vous sûr de vouloir remplacer l\'image actuelle par la nouvelle image ?')) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+</script>
+{% endblock %}

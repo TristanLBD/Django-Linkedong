@@ -136,6 +136,14 @@
         line-height: 1.6;
     }
 
+    .post-image {
+        width: 100%;
+        max-height: 400px;
+        object-fit: cover;
+        border-radius: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
     .post-actions {
         padding: 0.75rem 1rem;
         border-top: 1px solid #e0e0e0;
@@ -154,12 +162,20 @@
         color: var(--linkedin-gray);
         text-decoration: none;
         transition: all 0.2s;
+        border: none;
+        background: none;
+        cursor: pointer;
     }
 
     .post-action:hover {
         background-color: var(--linkedin-light-gray);
         color: var(--linkedin-blue);
         text-decoration: none;
+    }
+
+    .post-action.active {
+        color: var(--linkedin-blue);
+        font-weight: 600;
     }
 
     .create-post {
@@ -210,6 +226,7 @@
         color: var(--linkedin-gray);
         border-radius: 0.5rem;
         transition: all 0.2s;
+        cursor: pointer;
     }
 
     .attachment-btn:hover {
@@ -255,6 +272,128 @@
         font-size: 0.875rem;
         color: var(--linkedin-gray);
     }
+
+    .post-options {
+        position: relative;
+    }
+
+    .post-options-btn {
+        background: none;
+        border: none;
+        color: var(--linkedin-gray);
+        padding: 0.25rem;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .post-options-btn:hover {
+        background-color: var(--linkedin-light-gray);
+    }
+
+    .post-options-menu {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        min-width: 150px;
+        display: none;
+    }
+
+    .post-options-menu.show {
+        display: block;
+    }
+
+    .post-option-item {
+        padding: 0.5rem 1rem;
+        border: none;
+        background: none;
+        width: 100%;
+        text-align: left;
+        cursor: pointer;
+        color: var(--linkedin-gray);
+    }
+
+    .post-option-item:hover {
+        background-color: var(--linkedin-light-gray);
+    }
+
+    .post-option-item.delete {
+        color: #dc3545;
+    }
+
+    .comments-section {
+        border-top: 1px solid #e0e0e0;
+        padding: 1rem;
+        background-color: #f8f9fa;
+    }
+
+    .comment-form {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .comment-input {
+        flex: 1;
+        border: none;
+        outline: none;
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        background-color: white;
+    }
+
+    .comment-item {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+        padding: 0.5rem;
+        background: white;
+        border-radius: 0.5rem;
+    }
+
+    .comment-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--linkedin-blue);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .comment-content {
+        flex: 1;
+    }
+
+    .comment-author {
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .comment-text {
+        font-size: 0.875rem;
+        line-height: 1.4;
+    }
+
+    .comment-time {
+        font-size: 0.75rem;
+        color: var(--linkedin-gray);
+        margin-top: 0.25rem;
+    }
+
+    .reactions-count {
+        font-size: 0.875rem;
+        color: var(--linkedin-gray);
+        margin-bottom: 0.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -284,11 +423,11 @@
                             <div class="profile-title">Développeur Full Stack</div>
                             <div class="profile-stats">
                                 <div class="stat-item">
-                                    <span class="stat-number">150</span>
-                                    <span class="stat-label">Connexions</span>
+                                    <span class="stat-number">{{ total_users }}</span>
+                                    <span class="stat-label">Utilisateurs</span>
                                 </div>
                                 <div class="stat-item">
-                                    <span class="stat-number">25</span>
+                                    <span class="stat-number">{{ total_posts }}</span>
                                     <span class="stat-label">Posts</span>
                                 </div>
                             </div>
@@ -300,27 +439,15 @@
                         <h6 class="mb-3 fw-semibold">
                             <i class="fas fa-fire me-2 text-warning"></i>Sujets tendance
                         </h6>
+                        {% for topic in trending_topics %}
                         <div class="trending-topic">
-                            <div class="trending-number">#1</div>
+                            <div class="trending-number">#{{ forloop.counter }}</div>
                             <div class="trending-text">
-                                <div class="trending-title">Développement Web</div>
-                                <div class="trending-meta">1,234 posts</div>
+                                <div class="trending-title">{{ topic.title }}</div>
+                                <div class="trending-meta">{{ topic.count }} posts</div>
                             </div>
                         </div>
-                        <div class="trending-topic">
-                            <div class="trending-number">#2</div>
-                            <div class="trending-text">
-                                <div class="trending-title">Intelligence Artificielle</div>
-                                <div class="trending-meta">987 posts</div>
-                            </div>
-                        </div>
-                        <div class="trending-topic">
-                            <div class="trending-number">#3</div>
-                            <div class="trending-text">
-                                <div class="trending-title">DevOps</div>
-                                <div class="trending-meta">756 posts</div>
-                            </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
@@ -329,97 +456,200 @@
             <div class="col-lg-6">
                 <!-- Créer un post -->
                 <div class="create-post">
-                    <div class="create-post-header">
-                        <div class="post-avatar">
-                            {% if user.profile.profile_picture %}
-                                <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
-                            {% else %}
-                                {{ user.first_name.0 }}{{ user.last_name.0 }}
-                            {% endif %}
+                    <form method="post" enctype="multipart/form-data" id="create-post-form">
+                        {% csrf_token %}
+                        <div class="create-post-header">
+                            <div class="post-avatar">
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    {{ user.first_name.0 }}{{ user.last_name.0 }}
+                                {% endif %}
+                            </div>
+                            <div class="flex-grow-1">
+                                {{ form.content }}
+                            </div>
                         </div>
-                        <div class="flex-grow-1">
-                            <textarea class="create-post-input" placeholder="Partagez quelque chose avec votre réseau..." rows="3"></textarea>
+                        <div class="create-post-actions">
+                            <div class="post-attachments">
+                                <button type="button" class="attachment-btn" onclick="document.getElementById('{{ form.image.id_for_label }}').click()">
+                                    <i class="fas fa-image me-2"></i>Photo
+                                </button>
+                                <button type="button" class="attachment-btn">
+                                    <i class="fas fa-video me-2"></i>Vidéo
+                                </button>
+                                <button type="button" class="attachment-btn">
+                                    <i class="fas fa-file me-2"></i>Document
+                                </button>
+                            </div>
+                            {{ form.image }}
+                            <button type="submit" class="btn btn-linkedin">
+                                <i class="fas fa-paper-plane me-2"></i>Publier
+                            </button>
                         </div>
-                    </div>
-                    <div class="create-post-actions">
-                        <div class="post-attachments">
-                            <button class="attachment-btn">
-                                <i class="fas fa-image me-2"></i>Photo
-                            </button>
-                            <button class="attachment-btn">
-                                <i class="fas fa-video me-2"></i>Vidéo
-                            </button>
-                            <button class="attachment-btn">
-                                <i class="fas fa-file me-2"></i>Document
-                            </button>
+
+                        <!-- Zone de prévisualisation de l'image -->
+                        <div id="image-preview-container" style="display: none;" class="mt-3">
+                            <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded">
+                                <div class="d-flex align-items-center">
+                                    <img id="image-preview" src="" alt="Prévisualisation" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 12px;">
+                                    <div>
+                                        <div id="image-name" class="fw-semibold"></div>
+                                        <div id="image-size" class="text-muted small"></div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeImage()">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
                         </div>
-                        <button class="btn btn-linkedin">
-                            <i class="fas fa-paper-plane me-2"></i>Publier
-                        </button>
-                    </div>
+                    </form>
                 </div>
 
                 <!-- Posts -->
-                <div class="post-card">
+                {% for post in page_obj %}
+                <div class="post-card" id="post-{{ post.id }}">
                     <div class="post-header">
-                        <div class="post-avatar">JM</div>
-                        <div class="post-author">
-                            <div class="post-author-name">Jean Martin</div>
-                            <div class="post-time">Il y a 2 heures • <i class="fas fa-globe"></i></div>
+                        <div class="post-avatar">
+                            {% if post.author.profile.profile_picture %}
+                                <img src="{{ post.author.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                            {% else %}
+                                {{ post.author.first_name.0 }}{{ post.author.last_name.0 }}
+                            {% endif %}
                         </div>
+                        <div class="post-author">
+                            <div class="post-author-name">{{ post.author.first_name }} {{ post.author.last_name }}</div>
+                            <div class="post-time">{{ post.created_at|timesince }} • <i class="fas fa-globe"></i></div>
+                        </div>
+                        {% if post.author == user %}
+                        <div class="post-options">
+                            <button class="post-options-btn" onclick="togglePostOptions({{ post.id }})">
+                                <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="post-options-menu" id="post-options-{{ post.id }}">
+                                <a href="{% url 'posts:edit_post' post.id %}" class="post-option-item">
+                                    <i class="fas fa-edit me-2"></i>Modifier
+                                </a>
+                                <form method="post" action="{% url 'posts:delete_post' post.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="post-option-item delete" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce post ?')">
+                                        <i class="fas fa-trash me-2"></i>Supprimer
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                     <div class="post-content">
-                        <div class="post-text">
-                            J'ai terminé un nouveau projet Django aujourd'hui ! C'était vraiment enrichissant de travailler avec ce framework.
-                            Les bonnes pratiques et l'architecture MVC rendent le développement tellement plus organisé.
-                        </div>
+                        <div class="post-text">{{ post.content }}</div>
+                        {% if post.image %}
+                            <img src="{{ post.image.url }}" alt="Image du post" class="post-image">
+                        {% endif %}
                     </div>
-                    <div class="post-actions">
-                        <a href="#" class="post-action">
-                            <i class="far fa-thumbs-up"></i>J'aime
-                        </a>
-                        <a href="#" class="post-action">
-                            <i class="far fa-comment"></i>Commenter
-                        </a>
-                        <a href="#" class="post-action">
-                            <i class="fas fa-share"></i>Partager
-                        </a>
-                        <a href="#" class="post-action">
-                            <i class="far fa-paper-plane"></i>Envoyer
-                        </a>
-                    </div>
-                </div>
 
-                <div class="post-card">
-                    <div class="post-header">
-                        <div class="post-avatar">SP</div>
-                        <div class="post-author">
-                            <div class="post-author-name">Sophie Pierre</div>
-                            <div class="post-time">Il y a 5 heures • <i class="fas fa-globe"></i></div>
-                        </div>
+                    <!-- Réactions -->
+                    <div class="reactions-count">
+                        {% if post.reactions.count > 0 %}
+                            {{ post.reactions.count }} réaction{{ post.reactions.count|pluralize }}
+                        {% endif %}
                     </div>
-                    <div class="post-content">
-                        <div class="post-text">
-                            Partage d'une découverte intéressante sur les nouvelles technologies web.
-                            Les frameworks modernes comme React et Vue.js révolutionnent vraiment la façon
-                            dont nous construisons les interfaces utilisateur.
-                        </div>
-                    </div>
+
                     <div class="post-actions">
-                        <a href="#" class="post-action">
+                        <button class="post-action" onclick="toggleReaction({{ post.id }}, 'LIKE')" id="like-btn-{{ post.id }}">
                             <i class="far fa-thumbs-up"></i>J'aime
-                        </a>
-                        <a href="#" class="post-action">
+                        </button>
+                        <button class="post-action" onclick="showComments({{ post.id }})">
                             <i class="far fa-comment"></i>Commenter
-                        </a>
-                        <a href="#" class="post-action">
+                        </button>
+                        <button class="post-action">
                             <i class="fas fa-share"></i>Partager
-                        </a>
-                        <a href="#" class="post-action">
+                        </button>
+                        <button class="post-action">
                             <i class="far fa-paper-plane"></i>Envoyer
-                        </a>
+                        </button>
+                    </div>
+
+                    <!-- Section commentaires -->
+                    <div class="comments-section" id="comments-{{ post.id }}" style="display: none;">
+                        <form method="post" action="{% url 'posts:add_comment' post.id %}" class="comment-form">
+                            {% csrf_token %}
+                            <div class="comment-avatar">
+                                {% if user.profile.profile_picture %}
+                                    <img src="{{ user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    {{ user.first_name.0 }}{{ user.last_name.0 }}
+                                {% endif %}
+                            </div>
+                            <input type="text" name="content" placeholder="Ajouter un commentaire..." class="comment-input" required>
+                            <button type="submit" class="btn btn-sm btn-linkedin">Envoyer</button>
+                        </form>
+
+                        {% for comment in post.comments.all %}
+                        <div class="comment-item">
+                            <div class="comment-avatar">
+                                {% if comment.author.profile.profile_picture %}
+                                    <img src="{{ comment.author.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    {{ comment.author.first_name.0 }}{{ comment.author.last_name.0 }}
+                                {% endif %}
+                            </div>
+                            <div class="comment-content">
+                                <div class="comment-author">{{ comment.author.first_name }} {{ comment.author.last_name }}</div>
+                                <div class="comment-text">{{ comment.content }}</div>
+                                <div class="comment-time">{{ comment.created_at|timesince }}</div>
+                            </div>
+                            {% if comment.author == user %}
+                            <form method="post" action="{% url 'posts:delete_comment' comment.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Supprimer ce commentaire ?')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
+                {% empty %}
+                <div class="post-card">
+                    <div class="post-content text-center py-4">
+                        <i class="fas fa-newspaper text-muted fs-1 mb-3"></i>
+                        <h5 class="text-muted">Aucun post pour le moment</h5>
+                        <p class="text-muted">Soyez le premier à partager quelque chose !</p>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Navigation des posts">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Précédent</a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}">Suivant</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+                {% endif %}
             </div>
 
             <!-- Sidebar droite -->
@@ -430,34 +660,148 @@
                         <h6 class="mb-3 fw-semibold">
                             <i class="fas fa-users me-2 text-primary"></i>Suggestions pour vous
                         </h6>
+                        {% for suggested_user in suggested_users %}
                         <div class="trending-topic">
-                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">TD</div>
+                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">
+                                {% if suggested_user.profile.profile_picture %}
+                                    <img src="{{ suggested_user.profile.profile_picture.url }}" alt="Photo de profil" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                                {% else %}
+                                    {{ suggested_user.first_name.0 }}{{ suggested_user.last_name.0 }}
+                                {% endif %}
+                            </div>
                             <div class="trending-text">
-                                <div class="trending-title">Thomas Dubois</div>
-                                <div class="trending-meta">Développeur Backend</div>
+                                <div class="trending-title">{{ suggested_user.first_name }} {{ suggested_user.last_name }}</div>
+                                <div class="trending-meta">Développeur</div>
                             </div>
                             <button class="btn btn-sm btn-outline-linkedin">+</button>
                         </div>
-                        <div class="trending-topic">
-                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">ER</div>
-                            <div class="trending-text">
-                                <div class="trending-title">Emma Robert</div>
-                                <div class="trending-meta">UX Designer</div>
-                            </div>
-                            <button class="btn btn-sm btn-outline-linkedin">+</button>
-                        </div>
-                        <div class="trending-topic">
-                            <div class="post-avatar" style="width: 40px; height: 40px; font-size: 0.875rem;">LP</div>
-                            <div class="trending-text">
-                                <div class="trending-title">Lucas Petit</div>
-                                <div class="trending-meta">DevOps Engineer</div>
-                            </div>
-                            <button class="btn btn-sm btn-outline-linkedin">+</button>
-                        </div>
+                        {% endfor %}
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gestion des options de post
+function togglePostOptions(postId) {
+    const menu = document.getElementById(`post-options-${postId}`);
+    menu.classList.toggle('show');
+
+    // Fermer les autres menus
+    document.querySelectorAll('.post-options-menu').forEach(m => {
+        if (m.id !== `post-options-${postId}`) {
+            m.classList.remove('show');
+        }
+    });
+}
+
+// Fermer les menus quand on clique ailleurs
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-options')) {
+        document.querySelectorAll('.post-options-menu').forEach(m => {
+            m.classList.remove('show');
+        });
+    }
+});
+
+// Gestion des commentaires
+function showComments(postId) {
+    const commentsSection = document.getElementById(`comments-${postId}`);
+    commentsSection.style.display = commentsSection.style.display === 'none' ? 'block' : 'none';
+}
+
+// Gestion des réactions
+function toggleReaction(postId, reactionType) {
+    const formData = new FormData();
+    formData.append('reaction_type', reactionType);
+    formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+    fetch(`/posts/reaction/${postId}/`, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const btn = document.getElementById(`like-btn-${postId}`);
+            if (data.action === 'added' || data.action === 'updated') {
+                btn.classList.add('active');
+                btn.innerHTML = '<i class="fas fa-thumbs-up"></i>J\'aime';
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<i class="far fa-thumbs-up"></i>J\'aime';
+            }
+
+            // Mettre à jour le compteur de réactions
+            const reactionsCount = document.querySelector(`#post-${postId} .reactions-count`);
+            if (data.reactions_count > 0) {
+                reactionsCount.textContent = `${data.reactions_count} réaction${data.reactions_count > 1 ? 's' : ''}`;
+            } else {
+                reactionsCount.textContent = '';
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Erreur:', error);
+    });
+}
+
+// Prévisualisation de l'image
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Validation du type de fichier
+        if (!file.type.startsWith('image/')) {
+            alert('Veuillez sélectionner un fichier image valide.');
+            this.value = '';
+            return;
+        }
+
+        // Validation de la taille (max 5MB)
+        const maxSize = 5 * 1024 * 1024; // 5MB
+        if (file.size > maxSize) {
+            alert('L\'image est trop volumineuse. Taille maximum : 5MB');
+            this.value = '';
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('image-preview-container').style.display = 'block';
+            document.getElementById('image-name').textContent = file.name;
+            document.getElementById('image-size').textContent = formatFileSize(file.size);
+        };
+        reader.onerror = function() {
+            alert('Erreur lors de la lecture du fichier.');
+            document.getElementById('{{ form.image.id_for_label }}').value = '';
+        };
+        reader.readAsDataURL(file);
+    } else {
+        document.getElementById('image-preview-container').style.display = 'none';
+    }
+});
+
+// Fonction pour formater la taille du fichier
+function formatFileSize(bytes) {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// Supprimer la prévisualisation
+function removeImage() {
+    document.getElementById('{{ form.image.id_for_label }}').value = ''; // Effacer le champ de fichier
+    document.getElementById('image-preview').src = ''; // Effacer l'image de prévisualisation
+    document.getElementById('image-preview-container').style.display = 'none'; // Masquer le conteneur
+    document.getElementById('image-name').textContent = ''; // Effacer le nom de fichier
+    document.getElementById('image-size').textContent = ''; // Effacer la taille
+}
+</script>
 {% endblock %}

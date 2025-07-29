@@ -12,13 +12,13 @@ from .models import UserSkill, Experience, Skill
 def home(request):
     """Page d'accueil (landing page) style LinkedIn"""
     if request.user.is_authenticated:
-        return redirect('accounts:dashboard')
+        return redirect('posts:dashboard')
     return render(request, 'base/home.html')
 
 def login_view(request):
     """Page de connexion style LinkedIn"""
     if request.user.is_authenticated:
-        return redirect('accounts:dashboard')
+        return redirect('posts:dashboard')
 
     if request.method != 'POST':
         form = LoginForm()
@@ -48,7 +48,7 @@ def login_view(request):
         display_name = user.username
 
     messages.success(request, f'Bienvenue {display_name} !')
-    return redirect('accounts:dashboard')
+    return redirect('posts:dashboard')
 
 @login_required
 def logout_view(request):
@@ -59,13 +59,13 @@ def logout_view(request):
 
 @login_required
 def dashboard(request):
-    """Tableau de bord principal"""
-    return render(request, 'posts/dashboard.html')
+    """Tableau de bord principal - Redirection vers le dashboard des posts"""
+    return redirect('posts:dashboard')
 
 def signup_view(request):
     """Vue pour l'inscription d'un nouvel utilisateur"""
     if request.user.is_authenticated:
-        return redirect('accounts:dashboard')
+        return redirect('posts:dashboard')
 
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -74,7 +74,7 @@ def signup_view(request):
             login(request, user)
             display_name = f"{user.first_name} {user.last_name}"
             messages.success(request, f'Bienvenue {display_name} ! Votre compte a été créé avec succès.')
-            return redirect('accounts:dashboard')
+            return redirect('posts:dashboard')
     else:
         form = SignUpForm()
 

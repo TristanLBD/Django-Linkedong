@@ -21,7 +21,10 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('accounts.urls')),
+    # Dashboard principal (posts) comme page d'accueil
+    path('', include('posts.urls')),
+    # Gestion des comptes (login, signup, profile, etc.)
+    path('accounts/', include('accounts.urls')),
 ]
 
 # URLs pour les fichiers statiques et media en développement

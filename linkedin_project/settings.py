@@ -143,4 +143,4 @@ MESSAGE_TAGS = {
 }
 
 # Login URL pour @login_required
-LOGIN_URL = '/login/'
+LOGIN_URL = '/accounts/login/'
