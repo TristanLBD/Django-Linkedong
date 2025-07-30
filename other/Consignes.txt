@@ -14,11 +14,11 @@ Projet Django - LinkedIn
     - Barre de recherche : pouvoir retrouver des amis par leur nom, prénom ou ville
 
 Consignes MAJ :
-    Inscription, connexion (par e-mail) et suppression de compte
-    Gestion de compte utilisateur avec liste des compétences et parcours entreprise
-    Pouvoir uploader des photos sur le fil ou en photo de profile
+    Inscription, connexion (par e-mail) et suppression de compte 🟩
+    Gestion de compte utilisateur avec liste des compétences et parcours entreprise 🟩
+    Pouvoir uploader des photos sur le fil ou en photo de profile 🟩
     Système d’ajout/suppression des connexions
-    Fil d’actualité (du plus récent au plus ancien)
-    Système de réaction sur les posts (like, love, funny, …)
-    Système de commentaires sur les posts
-    Système de posts
+    Fil d’actualité (du plus récent au plus ancien) 🟩
+    Système de réaction sur les posts (like, love, funny, …) 🟩
+    Système de commentaires sur les posts 🟩
+    Système de posts 🟩

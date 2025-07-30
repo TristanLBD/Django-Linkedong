@@ -19,5 +19,5 @@ urlpatterns = [
     path('comment/delete/<int:comment_id>/', views.DeleteCommentView.as_view(), name='delete_comment'),
 
     # Gestion des réactions
-    path('reaction/<int:post_id>/', views.toggle_reaction, name='toggle_reaction'),
+    path('reaction/<int:post_id>/', views.ToggleReactionView.as_view(), name='toggle_reaction'),
 ]

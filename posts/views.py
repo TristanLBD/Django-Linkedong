@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
-from django.views.generic import TemplateView, DeleteView, CreateView, UpdateView
+from django.views.generic import TemplateView, DeleteView, CreateView, UpdateView, View
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from .models import Post, Comment, Reaction
@@ -31,6 +31,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         posts = Post.objects.select_related('author', 'author__profile').prefetch_related(
             'comments', 'reactions'
         ).order_by('-created_at')
+
+        # Ajouter les statistiques de réactions pour chaque post
+        for post in posts:
+            # Statistiques des réactions par type
+            post.reactions_stats = post.reactions.values('reaction_type').annotate(
+                count=Count('reaction_type')
+            ).order_by('-count')
+
+            # Vérifier si l'utilisateur actuel a réagi
+            post.user_reaction = post.reactions.filter(user=self.request.user).first()
+
+            # Total des réactions
+            post.total_reactions = post.reactions.count()
 
         paginator = Paginator(posts, 10)
         page_number = self.request.GET.get('page')
@@ -144,41 +157,50 @@ class EditPostView(LoginRequiredMixin, UpdateView):
         messages.error(self.request, 'Erreur lors de la modification du post.')
         return super().form_invalid(form)
 
-@login_required
-@require_POST
-def toggle_reaction(request, post_id):
+class ToggleReactionView(LoginRequiredMixin, View):
     """Ajouter/supprimer une réaction sur un post"""
-    post = get_object_or_404(Post, id=post_id)
-    reaction_type = request.POST.get('reaction_type', 'LIKE')
+    http_method_names = ['post']
 
-    # Vérifier si l'utilisateur a déjà réagi
-    existing_reaction = Reaction.objects.filter(user=request.user, post=post).first()
+    def post(self, request, *args, **kwargs):
+        post_id = kwargs.get('post_id')
+        post = get_object_or_404(Post, id=post_id)
+        reaction_type = request.POST.get('reaction_type', 'LIKE')
 
-    if existing_reaction:
-        if existing_reaction.reaction_type == reaction_type:
-            # Supprimer la réaction si c'est la même
-            existing_reaction.delete()
-            action = 'removed'
+        # Vérifier si l'utilisateur a déjà réagi
+        existing_reaction = Reaction.objects.filter(user=request.user, post=post).first()
+
+        if existing_reaction:
+            if existing_reaction.reaction_type == reaction_type:
+                # Supprimer la réaction si c'est la même
+                existing_reaction.delete()
+                action = 'removed'
+            else:
+                # Modifier le type de réaction
+                existing_reaction.reaction_type = reaction_type
+                existing_reaction.save()
+                action = 'updated'
         else:
-            # Modifier le type de réaction
-            existing_reaction.reaction_type = reaction_type
-            existing_reaction.save()
-            action = 'updated'
-    else:
-        # Créer une nouvelle réaction
-        Reaction.objects.create(
-            user=request.user,
-            post=post,
-            reaction_type=reaction_type
-        )
-        action = 'added'
+            # Créer une nouvelle réaction
+            Reaction.objects.create(
+                user=request.user,
+                post=post,
+                reaction_type=reaction_type
+            )
+            action = 'added'
 
-    # Compter les réactions
-    reactions_count = post.reactions.count()
+        # Récupérer les statistiques des réactions
+        reactions_stats = post.reactions.values('reaction_type').annotate(
+            count=Count('reaction_type')
+        ).order_by('-count')
 
-    return JsonResponse({
-        'success': True,
-        'action': action,
-        'reactions_count': reactions_count,
-        'reaction_type': reaction_type
-    })
+        # Vérifier si l'utilisateur actuel a réagi
+        user_reaction = post.reactions.filter(user=request.user).first()
+
+        return JsonResponse({
+            'success': True,
+            'action': action,
+            'reaction_type': reaction_type,
+            'user_reaction': user_reaction.reaction_type if user_reaction else None,
+            'reactions_stats': list(reactions_stats),
+            'total_reactions': post.reactions.count()
+        })

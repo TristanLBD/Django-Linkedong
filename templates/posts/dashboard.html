@@ -165,6 +165,7 @@
         border: none;
         background: none;
         cursor: pointer;
+        position: relative;
     }
 
     .post-action:hover {
@@ -394,6 +395,46 @@
         color: var(--linkedin-gray);
         margin-bottom: 0.5rem;
     }
+
+    .reactions-menu {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: white;
+        border: 1px solid #e0e0e0;
+        border-radius: 0.5rem;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding: 0.5rem;
+        margin-bottom: 0.5rem;
+        min-width: 280px;
+    }
+
+    .reactions-container {
+        display: flex;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+
+    .reaction-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: none;
+        border-radius: 50%;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .reaction-btn:hover {
+        background-color: var(--linkedin-light-gray);
+        transform: scale(1.1);
+    }
 </style>
 {% endblock %}
 
@@ -549,15 +590,73 @@
 
                     <!-- Réactions -->
                     <div class="reactions-count">
-                        {% if post.reactions.count > 0 %}
-                            {{ post.reactions.count }} réaction{{ post.reactions.count|pluralize }}
+                        {% if post.total_reactions > 0 %}
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                {% for stat in post.reactions_stats|slice:":3" %}
+                                    <span class="badge bg-light text-dark">
+                                        {% if stat.reaction_type == 'LIKE' %}
+                                            👍
+                                        {% elif stat.reaction_type == 'LOVE' %}
+                                            ❤️
+                                        {% elif stat.reaction_type == 'FUNNY' %}
+                                            😂
+                                        {% elif stat.reaction_type == 'WOW' %}
+                                            😮
+                                        {% elif stat.reaction_type == 'SAD' %}
+                                            😢
+                                        {% elif stat.reaction_type == 'ANGRY' %}
+                                            😠
+                                        {% endif %}
+                                        {{ stat.count }}
+                                    </span>
+                                {% endfor %}
+                                {% if post.total_reactions > 3 %}
+                                    <span class="text-muted">+{{ post.total_reactions|add:"-3" }} autres</span>
+                                {% endif %}
+                            </div>
                         {% endif %}
                     </div>
 
                     <div class="post-actions">
-                        <button class="post-action" onclick="toggleReaction({{ post.id }}, 'LIKE')" id="like-btn-{{ post.id }}">
-                            <i class="far fa-thumbs-up"></i>J'aime
-                        </button>
+                        <div class="position-relative">
+                            <button class="post-action {% if post.user_reaction %}active{% endif %}"
+                                    onmouseenter="toggleReactionsMenu({{ post.id }})"
+                                    onclick="toggleReaction({{ post.id }}, 'LIKE')"
+                                    id="like-btn-{{ post.id }}"
+                                    data-post-id="{{ post.id }}">
+                                {% if post.user_reaction and post.user_reaction.reaction_type == 'LIKE' %}
+                                    <i class="fas fa-thumbs-up text-primary"></i>
+                                {% else %}
+                                    <i class="far fa-thumbs-up"></i>
+                                {% endif %}
+                                J'aime
+                            </button>
+
+                            <!-- Menu des réactions -->
+                            <div class="reactions-menu" id="reactions-menu-{{ post.id }}" style="display: none;">
+                                <div class="reactions-container">
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'LIKE')" title="J'aime">
+                                        👍
+                                    </button>
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'LOVE')" title="J'adore">
+                                        ❤️
+                                    </button>
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'FUNNY')" title="Haha">
+                                        😂
+                                    </button>
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'WOW')" title="Wow">
+                                        😮
+                                    </button>
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'SAD')" title="Triste">
+                                        😢
+                                    </button>
+                                    <button class="reaction-btn" onclick="toggleReaction({{ post.id }}, 'ANGRY')" title="En colère">
+                                        😠
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
                         <button class="post-action" onclick="showComments({{ post.id }})">
                             <i class="far fa-comment"></i>Commenter
                         </button>
@@ -720,35 +819,90 @@ function toggleReaction(postId, reactionType) {
     formData.append('reaction_type', reactionType);
     formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
 
-    fetch(`/posts/reaction/${postId}/`, {
+    fetch(`/reaction/${postId}/`, {
         method: 'POST',
         body: formData
     })
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const btn = document.getElementById(`like-btn-${postId}`);
-            if (data.action === 'added' || data.action === 'updated') {
-                btn.classList.add('active');
-                btn.innerHTML = '<i class="fas fa-thumbs-up"></i>J\'aime';
-            } else {
-                btn.classList.remove('active');
-                btn.innerHTML = '<i class="far fa-thumbs-up"></i>J\'aime';
-            }
-
-            // Mettre à jour le compteur de réactions
-            const reactionsCount = document.querySelector(`#post-${postId} .reactions-count`);
-            if (data.reactions_count > 0) {
-                reactionsCount.textContent = `${data.reactions_count} réaction${data.reactions_count > 1 ? 's' : ''}`;
-            } else {
-                reactionsCount.textContent = '';
-            }
+            updateReactionsDisplay(postId, data);
         }
     })
     .catch(error => {
         console.error('Erreur:', error);
     });
 }
+
+function updateReactionsDisplay(postId, data) {
+    const postElement = document.getElementById(`post-${postId}`);
+    const reactionsCountElement = postElement.querySelector('.reactions-count');
+    const likeBtn = document.getElementById(`like-btn-${postId}`);
+
+    // Mettre à jour le bouton principal
+    if (data.user_reaction) {
+        likeBtn.classList.add('active');
+        const icon = likeBtn.querySelector('i');
+        icon.className = 'fas fa-thumbs-up text-primary';
+    } else {
+        likeBtn.classList.remove('active');
+        const icon = likeBtn.querySelector('i');
+        icon.className = 'far fa-thumbs-up';
+    }
+
+    // Mettre à jour l'affichage des réactions
+    if (data.total_reactions > 0) {
+        let reactionsHtml = '<div class="d-flex align-items-center gap-2 mb-2">';
+        data.reactions_stats.slice(0, 3).forEach(stat => {
+            const emoji = getReactionEmoji(stat.reaction_type);
+            reactionsHtml += `<span class="badge bg-light text-dark">${emoji} ${stat.count}</span>`;
+        });
+        if (data.total_reactions > 3) {
+            reactionsHtml += `<span class="text-muted">+${data.total_reactions - 3} autres</span>`;
+        }
+        reactionsHtml += '</div>';
+        reactionsCountElement.innerHTML = reactionsHtml;
+    } else {
+        reactionsCountElement.innerHTML = '';
+    }
+}
+
+function getReactionEmoji(reactionType) {
+    const emojis = {
+        'LIKE': '👍',
+        'LOVE': '❤️',
+        'FUNNY': '😂',
+        'WOW': '😮',
+        'SAD': '😢',
+        'ANGRY': '😠'
+    };
+    return emojis[reactionType] || '👍';
+}
+
+// Afficher/masquer le menu des réactions
+function toggleReactionsMenu(postId) {
+    const menu = document.getElementById(`reactions-menu-${postId}`);
+    const isVisible = menu.style.display === 'block';
+
+    // Masquer tous les menus
+    document.querySelectorAll('.reactions-menu').forEach(m => {
+        m.style.display = 'none';
+    });
+
+    // Afficher le menu si il n'était pas visible
+    if (!isVisible) {
+        menu.style.display = 'block';
+    }
+}
+
+// Masquer les menus quand on clique ailleurs
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.post-action')) {
+        document.querySelectorAll('.reactions-menu').forEach(m => {
+            m.style.display = 'none';
+        });
+    }
+});
 
 // Prévisualisation de l'image
 document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
