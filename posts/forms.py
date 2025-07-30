@@ -33,7 +33,7 @@ class PostForm(forms.ModelForm):
         return content.strip()
 
 class CommentForm(forms.ModelForm):
-    """Formulaire pour ajouter un commentaire"""
+    """Formulaire pour ajouter un commentaire à un post"""
 
     class Meta:
         model = Comment

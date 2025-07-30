@@ -5,7 +5,7 @@ from .models import Profile, Skill, UserSkill, Experience
 
 
 class SignUpForm(UserCreationForm):
-    """Formulaire d'inscription simplifié"""
+    """Formulaire d'inscription"""
     email = forms.EmailField(
         max_length=254,
         required=True,
@@ -48,8 +48,7 @@ class SignUpForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         if commit:
             user.save()
-            # Créer automatiquement un profil pour l'utilisateur
-            Profile.objects.create(user=user)
+            Profile.objects.get_or_create(user=user)
         return user
 
 
@@ -108,7 +107,7 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class LoginForm(AuthenticationForm):
-    """Formulaire de connexion personnalisé"""
+    """Formulaire de connexion"""
     username = forms.CharField(
         widget=forms.TextInput(attrs={
             'class': 'form-control',
@@ -121,7 +120,6 @@ class LoginForm(AuthenticationForm):
             'placeholder': 'Mot de passe'
         })
     )
-
 
 class SkillForm(forms.ModelForm):
     """Formulaire pour ajouter une nouvelle compétence"""

@@ -1,26 +1,56 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.generic import TemplateView, DeleteView, CreateView, UpdateView
 from django.core.paginator import Paginator
 from django.db.models import Count, Q
 from .models import Post, Comment, Reaction
 from .forms import PostForm, CommentForm
 from django.contrib.auth.models import User
+from django.urls import reverse_lazy
 
-def home(request):
-    """Page d'accueil pour les utilisateurs non connectés"""
-    if request.user.is_authenticated:
-        return redirect('posts:dashboard')
-    return render(request, 'base/home.html')
+class HomeView(TemplateView):
+    template_name = 'base/home.html'
 
-@login_required
-def dashboard(request):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('posts:dashboard')
+        return super().dispatch(request, *args, **kwargs)
+
+class DashboardView(LoginRequiredMixin, TemplateView):
     """Vue principale du dashboard avec création et affichage des posts"""
+    template_name = 'posts/dashboard.html'
 
-    # Formulaire de création de post
-    if request.method == 'POST':
+    def get_context_data(self, **kwargs):
+        """Préparer les données contextuelles pour le dashboard"""
+        context = super().get_context_data(**kwargs)
+        context['form'] = PostForm()
+        posts = Post.objects.select_related('author', 'author__profile').prefetch_related(
+            'comments', 'reactions'
+        ).order_by('-created_at')
+
+        paginator = Paginator(posts, 10)
+        page_number = self.request.GET.get('page')
+        context['page_obj'] = paginator.get_page(page_number)
+
+        context['total_posts'] = Post.objects.count()
+        context['total_users'] = User.objects.count()
+
+        context['trending_topics'] = [
+            {'title': 'Développement Web', 'count': 1234},
+            {'title': 'Intelligence Artificielle', 'count': 987},
+            {'title': 'DevOps', 'count': 756},
+        ]
+
+        context['suggested_users'] = User.objects.exclude(id=self.request.user.id)[:3]
+
+        return context
+
+    def post(self, request, *args, **kwargs):
+        """Traiter la création d'un nouveau post"""
         form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
@@ -30,106 +60,89 @@ def dashboard(request):
             return redirect('posts:dashboard')
         else:
             messages.error(request, 'Erreur lors de la publication du post.')
-    else:
-        form = PostForm()
+            context = self.get_context_data(**kwargs)
+            context['form'] = form
+            return self.render_to_response(context)
 
-    # Récupération des posts (tous les utilisateurs)
-    posts = Post.objects.select_related('author', 'author__profile').prefetch_related(
-        'comments', 'reactions'
-    ).order_by('-created_at')
-
-    # Pagination
-    paginator = Paginator(posts, 10)  # 10 posts par page
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
-
-    # Statistiques pour la sidebar
-    total_posts = Post.objects.count()
-    total_users = User.objects.count()
-
-    # Sujets tendance (simulation)
-    trending_topics = [
-        {'title': 'Développement Web', 'count': 1234},
-        {'title': 'Intelligence Artificielle', 'count': 987},
-        {'title': 'DevOps', 'count': 756},
-    ]
-
-    # Suggestions de connexions (simulation)
-    suggested_users = User.objects.exclude(id=request.user.id)[:3]
-
-    context = {
-        'form': form,
-        'page_obj': page_obj,
-        'total_posts': total_posts,
-        'total_users': total_users,
-        'trending_topics': trending_topics,
-        'suggested_users': suggested_users,
-    }
-
-    return render(request, 'posts/dashboard.html', context)
-
-@login_required
-@require_POST
-def create_post(request):
-    """Créer un nouveau post via AJAX"""
-    form = PostForm(request.POST, request.FILES)
-    if form.is_valid():
-        post = form.save(commit=False)
-        post.author = request.user
-        post.save()
-
-        # Retourner les données du post pour l'affichage
-        return JsonResponse({
-            'success': True,
-            'post_id': post.id,
-            'content': post.content,
-            'author_name': f"{post.author.first_name} {post.author.last_name}",
-            'author_initials': f"{post.author.first_name[0]}{post.author.last_name[0]}",
-            'created_at': 'À l\'instant',
-            'image_url': post.image.url if post.image else None,
-        })
-    else:
-        return JsonResponse({
-            'success': False,
-            'errors': form.errors
-        })
-
-@login_required
-@require_POST
-def delete_post(request, post_id):
+class DeletePostView(LoginRequiredMixin, DeleteView):
     """Supprimer un post"""
-    post = get_object_or_404(Post, id=post_id, author=request.user)
-    post.delete()
-    messages.success(request, 'Post supprimé avec succès.')
-    return redirect('posts:dashboard')
+    model = Post
+    success_url = reverse_lazy('posts:dashboard')
+    http_method_names = ['post']
+    pk_url_kwarg = 'post_id'
 
-@login_required
-@require_POST
-def add_comment(request, post_id):
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        post = self.get_object()
+        post.delete()
+        messages.success(request, 'Post supprimé avec succès.')
+        return redirect(self.success_url)
+
+class AddCommentView(LoginRequiredMixin, CreateView):
     """Ajouter un commentaire à un post"""
-    post = get_object_or_404(Post, id=post_id)
-    form = CommentForm(request.POST)
+    form_class = CommentForm
+    success_url = reverse_lazy('posts:dashboard')
+    http_method_names = ['post']
 
-    if form.is_valid():
-        comment = form.save(commit=False)
-        comment.post = post
-        comment.author = request.user
-        comment.save()
+    def form_valid(self, form):
+        try:
+            post = get_object_or_404(Post, id=self.kwargs['post_id'])
+            comment = form.save(commit=False)
+            comment.post = post
+            comment.author = self.request.user
+            comment.save()
+            messages.success(self.request, 'Commentaire ajouté avec succès.')
+        except Exception as e:
+            messages.error(self.request, 'Erreur lors de l\'ajout du commentaire.')
 
-        messages.success(request, 'Commentaire ajouté avec succès.')
-    else:
-        messages.error(request, 'Erreur lors de l\'ajout du commentaire.')
+        return redirect(self.success_url)
 
-    return redirect('posts:dashboard')
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de l\'ajout du commentaire.')
+        return redirect(self.success_url)
 
-@login_required
-@require_POST
-def delete_comment(request, comment_id):
+class DeleteCommentView(LoginRequiredMixin, DeleteView):
     """Supprimer un commentaire"""
-    comment = get_object_or_404(Comment, id=comment_id, author=request.user)
-    comment.delete()
-    messages.success(request, 'Commentaire supprimé avec succès.')
-    return redirect('posts:dashboard')
+    model = Comment
+    success_url = reverse_lazy('posts:dashboard')
+    http_method_names = ['post']
+    pk_url_kwarg = 'comment_id'
+
+    def get_queryset(self):
+        return Comment.objects.filter(author=self.request.user)
+
+    def delete(self, request, *args, **kwargs):
+        comment = self.get_object()
+        comment.delete()
+        messages.success(request, 'Commentaire supprimé avec succès.')
+        return redirect(self.success_url)
+
+class EditPostView(LoginRequiredMixin, UpdateView):
+    """Modifier un post"""
+    model = Post
+    form_class = PostForm
+    template_name = 'posts/edit_post.html'
+    success_url = reverse_lazy('posts:dashboard')
+    pk_url_kwarg = 'post_id'
+
+    def get_queryset(self):
+        return Post.objects.filter(author=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['post'] = self.get_object()
+        return context
+
+    def form_valid(self, form):
+        form.save()
+        messages.success(self.request, 'Post modifié avec succès.')
+        return super().form_valid(form)
+
+    def form_invalid(self, form):
+        messages.error(self.request, 'Erreur lors de la modification du post.')
+        return super().form_invalid(form)
 
 @login_required
 @require_POST
@@ -169,26 +182,3 @@ def toggle_reaction(request, post_id):
         'reactions_count': reactions_count,
         'reaction_type': reaction_type
     })
-
-@login_required
-def edit_post(request, post_id):
-    """Modifier un post"""
-    post = get_object_or_404(Post, id=post_id, author=request.user)
-
-    if request.method == 'POST':
-        form = PostForm(request.POST, request.FILES, instance=post)
-        if form.is_valid():
-            form.save()
-            messages.success(request, 'Post modifié avec succès.')
-            return redirect('posts:dashboard')
-        else:
-            messages.error(request, 'Erreur lors de la modification du post.')
-    else:
-        form = PostForm(instance=post)
-
-    context = {
-        'form': form,
-        'post': post
-    }
-
-    return render(request, 'posts/edit_post.html', context)
