@@ -10,6 +10,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView, TemplateVie
 from django.urls import reverse_lazy
 from .forms import SignUpForm, LoginForm, ProfileUpdateForm, UserSkillForm, ExperienceForm
 from .models import UserSkill, Experience, Skill
+from .utils import EmailAuthentication
 
 # Create your views here.
 
@@ -20,7 +21,7 @@ def home(request):
     return render(request, 'base/home.html')
 
 class LoginView(LoginView):
-    """Page de connexion"""
+    """Page de connexion par email"""
     template_name = 'accounts/login.html'
     form_class = LoginForm
     redirect_authenticated_user = True
@@ -29,13 +30,19 @@ class LoginView(LoginView):
         return reverse_lazy('posts:dashboard')
 
     def form_valid(self, form):
-        response = super().form_valid(form)
+        email = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
 
-        user = self.request.user
-        display_name = f"{user.first_name} {user.last_name}"
+        user = EmailAuthentication(email, password)
 
-        messages.success(self.request, f'Bienvenue {display_name} !')
-        return response
+        if user is not None:
+            login(self.request, user)
+            display_name = f"{user.first_name} {user.last_name}"
+            messages.success(self.request, f'Bienvenue {display_name} !')
+            return redirect(self.get_success_url())
+        else:
+            messages.error(self.request, 'Email ou mot de passe incorrect.')
+            return self.form_invalid(form)
 
     def form_invalid(self, form):
         messages.error(self.request, 'Veuillez corriger les erreurs ci-dessous.')

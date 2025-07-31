@@ -51,7 +51,6 @@ class SignUpForm(UserCreationForm):
             Profile.objects.get_or_create(user=user)
         return user
 
-
 class ProfileUpdateForm(forms.ModelForm):
     """Formulaire de modification du profil utilisateur"""
     first_name = forms.CharField(
@@ -105,14 +104,14 @@ class ProfileUpdateForm(forms.ModelForm):
             profile.save()
         return profile
 
-
 class LoginForm(AuthenticationForm):
-    """Formulaire de connexion"""
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={
+    """Formulaire de connexion par email"""
+    username = forms.EmailField(
+        widget=forms.EmailInput(attrs={
             'class': 'form-control',
-            'placeholder': "Nom d'utilisateur"
-        })
+            'placeholder': "Adresse email"
+        }),
+        label="Email"
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={
@@ -120,6 +119,14 @@ class LoginForm(AuthenticationForm):
             'placeholder': 'Mot de passe'
         })
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = "Email"
+
+    def clean(self):
+        """Désactiver la validation par défaut d'AuthenticationForm"""
+        return self.cleaned_data
 
 class SkillForm(forms.ModelForm):
     """Formulaire pour ajouter une nouvelle compétence"""
