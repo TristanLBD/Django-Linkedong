@@ -1,0 +1,157 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Profil de {{ target_user.get_full_name|default:target_user.username }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Profil utilisateur -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Photo de profil -->
+                        <div class="col-md-3 text-center">
+                            {% if target_user.profile.profile_picture %}
+                                <img src="{{ target_user.profile.profile_picture.url }}" class="rounded-circle mb-3" width="150" height="150" alt="Photo de profil">
+                            {% else %}
+                                <div class="bg-secondary rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 150px; height: 150px;">
+                                    <i class="fas fa-user text-white fa-4x"></i>
+                                </div>
+                            {% endif %}
+
+                                                        <!-- Boutons d'action pour les connexions -->
+                            {% if target_user != user %}
+                                {% if connection_status == 'PENDING' %}
+                                    <div class="alert alert-info">
+                                        <i class="fas fa-clock"></i> Demande en attente
+                                    </div>
+                                    {% if connection_id %}
+                                        <form method="post" action="{% url 'connections:cancel_connection_request' connection_id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-warning btn-sm">
+                                                <i class="fas fa-undo"></i> Annuler la demande
+                                            </button>
+                                        </form>
+                                    {% endif %}
+                                {% elif connection_status == 'ACCEPTED' %}
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-users"></i> Connectés
+                                    </div>
+                                    <form method="post" action="{% url 'connections:remove_connection' connection_id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette connexion ?')">
+                                            <i class="fas fa-user-minus"></i> Supprimer la connexion
+                                        </button>
+                                    </form>
+                                {% elif connection_status == 'REJECTED' %}
+                                    <div class="alert alert-secondary">
+                                        <i class="fas fa-times"></i> Demande refusée
+                                    </div>
+                                {% else %}
+                                    <form method="post" action="{% url 'connections:send_connection_request' target_user.id %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-user-plus"></i> Se connecter
+                                        </button>
+                                    </form>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Informations du profil -->
+                        <div class="col-md-9">
+                            <h2>{{ target_user.get_full_name|default:target_user.username }}</h2>
+
+                            {% if target_user.profile.bio %}
+                                <p class="text-muted">{{ target_user.profile.bio }}</p>
+                            {% endif %}
+
+                            <hr>
+
+                            <!-- Informations de base -->
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h5>Informations</h5>
+                                    <ul class="list-unstyled">
+                                        <li><strong>Nom d'utilisateur:</strong> {{ target_user.username }}</li>
+                                        <li><strong>Email:</strong> {{ target_user.email }}</li>
+                                        <li><strong>Membre depuis:</strong> {{ target_user.date_joined|date:"d/m/Y" }}</li>
+                                        <li><strong>Dernière activité:</strong> {{ target_user.profile.last_active|date:"d/m/Y H:i" }}</li>
+                                    </ul>
+                                </div>
+
+                                <!-- Compétences -->
+                                <div class="col-md-6">
+                                    <h5>Compétences</h5>
+                                    {% if target_user.user_skills.all %}
+                                        <div class="mb-3">
+                                            {% for user_skill in target_user.user_skills.all %}
+                                                <span class="badge bg-primary me-1 mb-1">
+                                                    {{ user_skill.skill.name }} ({{ user_skill.get_level_display }})
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <p class="text-muted">Aucune compétence renseignée</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Expériences -->
+                            {% if target_user.experiences.all %}
+                                <hr>
+                                <h5>Expériences professionnelles</h5>
+                                <div class="row">
+                                    {% for experience in target_user.experiences.all %}
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card">
+                                                <div class="card-body">
+                                                    <h6 class="card-title">{{ experience.position }}</h6>
+                                                    <p class="card-text text-muted">{{ experience.company }}</p>
+                                                    <small class="text-muted">
+                                                        {{ experience.start_date|date:"m/Y" }} -
+                                                        {% if experience.is_current %}
+                                                            Actuellement
+                                                        {% else %}
+                                                            {{ experience.end_date|date:"m/Y" }}
+                                                        {% endif %}
+                                                    </small>
+                                                    {% if experience.description %}
+                                                        <p class="card-text mt-2">{{ experience.description|truncatechars:100 }}</p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Boutons de navigation -->
+            <div class="mt-4">
+                <a href="{% url 'connections:connection_list' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Retour aux connexions
+                </a>
+                <a href="{% url 'connections:search_users' %}" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Rechercher d'autres utilisateurs
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
